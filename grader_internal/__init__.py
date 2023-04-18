@@ -10,11 +10,15 @@ class Autograder:
         self._tokenizer_ans = np.load(
             os.path.dirname(__file__) + "/tokenizer_sub.npz"
         )["tokenized_text"]
+        self._pe_ans = np.load(
+            os.path.dirname(__file__) + "/pe_sub_d12_m256.npz"
+        )["pe"]
     
     def grade(self, submission_dat : typing.Dict[str, np.ndarray]) -> np.ndarray:
         grader_result = []
         grader_result.append(1 if self.grade_tokenizer_possible_combination(submission_dat) else 0)
         grader_result.append(1 if self.grade_tokenizer(submission_dat) else 0)
+        grader_result.append(1 if self.grade_pe(submission_dat) else 0)
         return grader_result
 
     def grade_tokenizer_possible_combination(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
@@ -36,4 +40,7 @@ class Autograder:
             return False
         return np.all(submitted_tokenized == ans_tokenized)
     
-
+    def grade_pe(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
+        submitted_pe = submission_dat["PE"]
+        ans_pe = self._pe_ans
+        return np.allclose(submitted_pe, ans_pe, rtol=1e-3)
