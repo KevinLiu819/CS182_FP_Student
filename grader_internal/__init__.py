@@ -13,12 +13,16 @@ class Autograder:
         self._pe_ans = np.load(
             os.path.dirname(__file__) + "/pe_sub_d12_m256.npz"
         )["pe"]
+        self._attention_ans = np.load(
+            os.path.dirname(__file__) + "/attention_test_sub.npz"
+        )["output"]
     
     def grade(self, submission_dat : typing.Dict[str, np.ndarray]) -> np.ndarray:
         grader_result = []
         grader_result.append(1 if self.grade_tokenizer_possible_combination(submission_dat) else 0)
         grader_result.append(1 if self.grade_tokenizer(submission_dat) else 0)
         grader_result.append(1 if self.grade_pe(submission_dat) else 0)
+        grader_result.append(1 if self.grade_attention(submission_dat) else 0)
         return grader_result
 
     def grade_tokenizer_possible_combination(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
@@ -44,3 +48,9 @@ class Autograder:
         submitted_pe = submission_dat["PE"]
         ans_pe = self._pe_ans
         return np.allclose(submitted_pe, ans_pe, rtol=1e-3)
+    
+    # Part 2: Multi-head Attention
+    def grade_attention(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
+        submitted_attention = submission_dat["Attention"]
+        ans_attention = self._attention_ans
+        return np.allclose(submitted_attention, ans_attention, rtol=1e-3)

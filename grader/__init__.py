@@ -1,5 +1,6 @@
 from .autograder_tokenizer import *
 from .autograder_pe import *
+from .autograder_attention import *
 
 import typing
 class AutograderSubmitter:
