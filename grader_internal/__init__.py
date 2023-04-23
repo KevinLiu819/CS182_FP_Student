@@ -16,15 +16,30 @@ class Autograder:
         self._attention_ans = np.load(
             os.path.dirname(__file__) + "/attention_test_sub.npz"
         )["output"]
+        self._feed_forward_ans = np.load(
+            os.path.dirname(__file__) + "/feed_forward_test_sub.npz"
+        )["output"]
+        self._transformer_layer_ans = np.load(
+            os.path.dirname(__file__) + "/transformer_layer_test_sub.npz"
+        )["output"]
     
     def grade(self, submission_dat : typing.Dict[str, np.ndarray]) -> np.ndarray:
         grader_result = []
-        grader_result.append(1 if self.grade_tokenizer_possible_combination(submission_dat) else 0)
-        grader_result.append(1 if self.grade_tokenizer(submission_dat) else 0)
-        grader_result.append(1 if self.grade_pe(submission_dat) else 0)
-        grader_result.append(1 if self.grade_attention(submission_dat) else 0)
+        grader_result.append(self.catch_error_helper(self.grade_tokenizer_possible_combination, submission_dat))
+        grader_result.append(self.catch_error_helper(self.grade_tokenizer, submission_dat))
+        grader_result.append(self.catch_error_helper(self.grade_pe, submission_dat))
+        grader_result.append(self.catch_error_helper(self.grade_attention, submission_dat))
+        grader_result.append(self.catch_error_helper(self.grade_feed_forward, submission_dat))
+        grader_result.append(self.catch_error_helper(self.grade_transformer_layer, submission_dat))
         return grader_result
+    
+    def catch_error_helper(self, question, submission_dat):
+        try:
+            return 1 if question(submission_dat) else 0
+        except:
+            return 0
 
+    # Part 1: Tokenizer
     def grade_tokenizer_possible_combination(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
         comb_submitted = submission_dat["tokenizer_comb"]
         comb_ans = self._tokenizer_comb_ans
@@ -49,8 +64,18 @@ class Autograder:
         ans_pe = self._pe_ans
         return np.allclose(submitted_pe, ans_pe, rtol=1e-3)
     
-    # Part 2: Multi-head Attention
+    # Part 2: Transformer Layer
     def grade_attention(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
         submitted_attention = submission_dat["Attention"]
         ans_attention = self._attention_ans
         return np.allclose(submitted_attention, ans_attention, rtol=1e-3)
+    
+    def grade_feed_forward(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
+        submitted_feed_forward = submission_dat["FeedForward"]
+        ans_feed_forward = self._feed_forward_ans
+        return np.allclose(submitted_feed_forward, ans_feed_forward, rtol=1e-3)
+    
+    def grade_transformer_layer(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
+        submitted_transformer_layer = submission_dat["TransformerLayer"]
+        ans_transformer_layer = self._transformer_layer_ans
+        return np.allclose(submitted_transformer_layer, ans_transformer_layer, rtol=1e-3)

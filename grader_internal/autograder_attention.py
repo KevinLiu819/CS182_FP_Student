@@ -3,6 +3,7 @@ from torch import nn
 import numpy as np
 import math
 import einops
+import copy
 from autograder_tokenizer import (
     DictionaryRef,
     generate_test_data_tokenizer
@@ -96,17 +97,17 @@ class MultiHeadAttention(nn.Module):
 
         Parameters
         ----------
-        Q: Input tensor of queries with size (batch_size, seq_len, d_model)
-        K: Input tensor of keys with size (batch_size, seq_len, d_model)
-        V: Input tensor of values with size (batch_size, tgt_len, d_model)
+        Q: Input tensor of queries with size (batch_size, n_heads, tgt_len, d_head)
+        K: Input tensor of keys with size (batch_size, n_heads, seq_len, d_head)
+        V: Input tensor of values with size (batch_size, n_heads, seq_len, d_head)
 
         Returns
         -------
-        Output attention tensor with size ()
+        Output attention tensor with size (batch_size, n_heads, tgt_len, d_head)
         """
         # YOUR CODE HERE
-        _, seq_len, d_model = Q.shape
-        weights = Q @ K.transpose(-2, -1) / (d_model ** 0.5)
+        _, _, seq_len, d_head = Q.shape
+        weights = Q @ K.transpose(-2, -1) / (d_head ** 0.5)
         mask = torch.tril(torch.ones(seq_len, seq_len))
         masked_weights = weights.masked_fill(mask == 0, float('-inf'))
         return nn.functional.softmax(masked_weights, -1) @ V
@@ -121,13 +122,17 @@ class MultiHeadAttention(nn.Module):
 
         Returns
         -------
-        Output tensor after forward pass with size (batch_size, seq_len, d_model)
+        Output tensor after forward pass with size (batch_size, tgt_len, d_model)
         """
         # YOUR CODE HERE
         Q = self.query_proj(x)
         K = self.key_proj(x)
         V = self.value_proj(x)
+        Q = einops.rearrange(Q, 'a b (c d) -> a c b d', c=self.n_heads)
+        K = einops.rearrange(K, 'a b (c d) -> a c b d', c=self.n_heads)
+        V = einops.rearrange(V, 'a b (c d) -> a c b d', c=self.n_heads)
         attention = self.compute_masked_attention(Q, K, V)
+        attention = einops.rearrange(attention, 'a c b d -> a b (c d)', c=self.n_heads)
         out = self.output_proj(attention)
         return self.dropout(out)
 
@@ -144,7 +149,7 @@ def generate_attention_test_data(grader_internal: bool):
     seed = np.random.randint(SEED_SIZE)
     torch.manual_seed(seed)
     attention_layer = MultiHeadAttention(D_MODEL)
-    attention = attention_layer(tokens_embed)
+    attention = attention_layer(copy.deepcopy(tokens_embed))
     attention_in = tokens_embed.detach().numpy()
     attention_out = attention.detach().numpy()
     # Embedded tokens are the input, Attention is the expected output
@@ -167,5 +172,5 @@ def generate_attention_test_data(grader_internal: bool):
         )
 
 
-generate_attention_test_data(False)
-generate_attention_test_data(True)
+# generate_attention_test_data(False)
+# generate_attention_test_data(True)
