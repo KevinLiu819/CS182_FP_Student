@@ -31,5 +31,5 @@ from grader_internal import Autograder
 import numpy as np
 
 grad = Autograder()
-grad.grade(np.load("submisison.npz"))
+grad.grade(np.load("submission.npz"))
 ```
