@@ -3,7 +3,7 @@ sys.path.append("..")
 
 import torch
 from torch.utils.data import DataLoader
-from nanogpt import GPT2, train_gpt2
+from nanogpt import GPT2, train_gpt
 
 class DummyDataset(torch.utils.data.Dataset):
     def __len__(self):
@@ -27,7 +27,7 @@ def test_train_gpt2():
     epochs = 1
     
     try:
-        train_gpt2(model, optimizer, criterion, dataloader, epochs, device)
+        train_gpt(model, optimizer, criterion, dataloader, epochs, device)
         print("Training function implementation passed the test.")
     except Exception as e:
         raise AssertionError("Error during training:", e)
