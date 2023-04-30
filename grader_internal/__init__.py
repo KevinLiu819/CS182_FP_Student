@@ -31,13 +31,18 @@ class Autograder:
         grader_result.append(self.catch_error_helper(self.grade_attention, submission_dat))
         grader_result.append(self.catch_error_helper(self.grade_feed_forward, submission_dat))
         grader_result.append(self.catch_error_helper(self.grade_transformer_layer, submission_dat))
+        grader_result.append(self.catch_error_helper(self.grade_shakespeare, submission_dat))
         return grader_result
     
     def catch_error_helper(self, question, submission_dat):
         try:
-            return 1 if question(submission_dat) else 0
+            res = question(submission_dat)
+            if isinstance(res, bool):
+                return 1. if res else 0.
+            else:
+                return res
         except:
-            return 0
+            return 0.
 
     # Part 1: Tokenizer
     def grade_tokenizer_possible_combination(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
@@ -68,14 +73,41 @@ class Autograder:
     def grade_attention(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
         submitted_attention = submission_dat["Attention"]
         ans_attention = self._attention_ans
-        return np.allclose(submitted_attention, ans_attention, rtol=1e-3)
+        if submitted_attention.shape != ans_attention.shape:
+            return False
+        a, b, _ = submitted_attention.shape
+        for i in range(a):
+            for j in range(b):
+                if not np.allclose(submitted_attention[i, j], ans_attention[i, j], rtol=1e-3):
+                    return False
+        return True
     
     def grade_feed_forward(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
         submitted_feed_forward = submission_dat["FeedForward"]
         ans_feed_forward = self._feed_forward_ans
-        return np.allclose(submitted_feed_forward, ans_feed_forward, rtol=1e-3)
+        if submitted_feed_forward.shape != ans_feed_forward.shape:
+            return False
+        a, b, _ = submitted_feed_forward.shape
+        for i in range(a):
+            for j in range(b):
+                if not np.allclose(submitted_feed_forward[i, j], ans_feed_forward[i, j], rtol=1e-3):
+                    return False
+        return True
     
     def grade_transformer_layer(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
         submitted_transformer_layer = submission_dat["TransformerLayer"]
         ans_transformer_layer = self._transformer_layer_ans
-        return np.allclose(submitted_transformer_layer, ans_transformer_layer, rtol=1e-3)
+        if submitted_transformer_layer.shape != ans_transformer_layer.shape:
+            return False
+        a, b, _ = submitted_transformer_layer.shape
+        for i in range(a):
+            for j in range(b):
+                if not np.allclose(submitted_transformer_layer[i, j], ans_transformer_layer[i, j], rtol=1e-3):
+                    return False
+        return True
+    
+    # Part 4: Shakespeare
+    # Note: This question is worth 5 points
+    def grade_shakespeare(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
+        submitted_loss = submission_dat["Shakespeare"]
+        return 5. * max(0., min(1., 3. - submitted_loss))

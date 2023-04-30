@@ -14,7 +14,12 @@ def grade_transformer_layer(transformer_layer_class):
     transformer_layer = transformer_layer_class(1024)
     out = transformer_layer(transformer_layer_in)
     out = out.detach().numpy()
-    assert np.allclose(out, transformer_layer_out, rtol=1e-3)
+    
+    assert out.shape == transformer_layer_out.shape
+    a, b, _ = out.shape
+    for i in range(a):
+        for j in range(b):
+            assert np.allclose(out[i, j], transformer_layer_out[i, j], rtol=1e-3)
 
 def generate_transformer_layer_sub(transformer_layer_class):
     data = np.load(TRANSFORMER_LAYER_SUB_FILE)

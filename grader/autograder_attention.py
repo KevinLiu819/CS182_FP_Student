@@ -14,7 +14,12 @@ def grade_attention(attention_class):
     attention_layer = attention_class(1024)
     attention = attention_layer(attention_in)
     out = attention.detach().numpy()
-    assert np.allclose(out, attention_out, rtol=1e-3)
+    
+    assert out.shape == attention_out.shape
+    a, b, _ = out.shape
+    for i in range(a):
+        for j in range(b):
+            assert np.allclose(out[i, j], attention_out[i, j], rtol=1e-3)
 
 def generate_attention_sub(attention_class):
     data = np.load(ATTENTION_SUB_FILE)

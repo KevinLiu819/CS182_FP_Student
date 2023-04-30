@@ -14,7 +14,12 @@ def grade_feed_forward(feed_forward_class):
     feed_forward_layer = feed_forward_class(1024)
     out = feed_forward_layer(feed_forward_in)
     out = out.detach().numpy()
-    assert np.allclose(out, feed_forward_out, rtol=1e-3)
+
+    assert out.shape == feed_forward_out.shape
+    a, b, _ = out.shape
+    for i in range(a):
+        for j in range(b):
+            assert np.allclose(out[i, j], feed_forward_out[i, j], rtol=1e-3)
 
 def generate_feed_forward_sub(feed_forward_class):
     data = np.load(FEED_FORWARD_SUB_FILE)
