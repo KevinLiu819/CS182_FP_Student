@@ -1,17 +1,14 @@
-import sys
-sys.path.append("..")
-
 import torch
-from nanogpt import GPT2
 
-def test_gpt2_model():
+def test_gpt2_model(GPT2):
     vocab_size = 100
     d_model = 64
     n_layers = 6
     n_heads = 4
+    max_len = 20
     dropout = 0.1
     
-    model = GPT2(vocab_size, d_model, n_layers, n_heads, dropout)
+    model = GPT2(vocab_size, d_model, n_layers, n_heads, max_len, dropout)
     
     assert isinstance(model, torch.nn.Module), "GPT2 should be a subclass of torch.nn.Module."
     
