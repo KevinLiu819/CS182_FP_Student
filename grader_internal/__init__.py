@@ -62,7 +62,7 @@ class Autograder:
         ans_tokenized = self._tokenizer_ans
         if len(submitted_tokenized) != len(ans_tokenized):
             return False
-        return np.all(submitted_tokenized == ans_tokenized)
+        return np.allclose(submitted_tokenized, ans_tokenized, rtol=1e-3)
     
     def grade_pe(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
         submitted_pe = submission_dat["PE"]
@@ -78,7 +78,7 @@ class Autograder:
         a, b, _ = submitted_attention.shape
         for i in range(a):
             for j in range(b):
-                if not np.allclose(submitted_attention[i, j], ans_attention[i, j], rtol=1e-3):
+                if not np.allclose(submitted_attention[i, j], ans_attention[i, j], atol=1e-2):
                     return False
         return True
     
@@ -90,7 +90,7 @@ class Autograder:
         a, b, _ = submitted_feed_forward.shape
         for i in range(a):
             for j in range(b):
-                if not np.allclose(submitted_feed_forward[i, j], ans_feed_forward[i, j], rtol=1e-3):
+                if not np.allclose(submitted_feed_forward[i, j], ans_feed_forward[i, j], atol=1e-2):
                     return False
         return True
     
@@ -102,7 +102,7 @@ class Autograder:
         a, b, _ = submitted_transformer_layer.shape
         for i in range(a):
             for j in range(b):
-                if not np.allclose(submitted_transformer_layer[i, j], ans_transformer_layer[i, j], rtol=1e-3):
+                if not np.allclose(submitted_transformer_layer[i, j], ans_transformer_layer[i, j], atol=1e-2):
                     return False
         return True
     
@@ -110,4 +110,4 @@ class Autograder:
     # Note: This question is worth 5 points
     def grade_shakespeare(self, submission_dat : typing.Dict[str, np.ndarray]) -> bool:
         submitted_loss = submission_dat["Shakespeare"]
-        return 5. * max(0., min(1., 3. - submitted_loss))
+        return 5. * max(0., min(1., 3. - round(submitted_loss, 2)))

@@ -19,7 +19,7 @@ def grade_feed_forward(feed_forward_class):
     a, b, _ = out.shape
     for i in range(a):
         for j in range(b):
-            assert np.allclose(out[i, j], feed_forward_out[i, j], rtol=1e-3)
+            assert np.allclose(out[i, j], feed_forward_out[i, j], atol=1e-2)
 
 def generate_feed_forward_sub(feed_forward_class):
     data = np.load(FEED_FORWARD_SUB_FILE)

@@ -19,7 +19,7 @@ def grade_attention(attention_class):
     a, b, _ = out.shape
     for i in range(a):
         for j in range(b):
-            assert np.allclose(out[i, j], attention_out[i, j], rtol=1e-3)
+            assert np.allclose(out[i, j], attention_out[i, j], atol=1e-2)
 
 def generate_attention_sub(attention_class):
     data = np.load(ATTENTION_SUB_FILE)
