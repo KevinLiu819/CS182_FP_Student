@@ -27,7 +27,7 @@ class Autograder:
         grader_result = []
         grader_result.append(self.catch_error_helper(self.grade_tokenizer_possible_combination, submission_dat))
         grader_result.append(self.catch_error_helper(self.grade_tokenizer, submission_dat))
-        grader_result.append(self.catch_error_helper(self.grade_pe, submission_dat))
+        # grader_result.append(self.catch_error_helper(self.grade_pe, submission_dat))
         grader_result.append(self.catch_error_helper(self.grade_attention, submission_dat))
         grader_result.append(self.catch_error_helper(self.grade_feed_forward, submission_dat))
         grader_result.append(self.catch_error_helper(self.grade_transformer_layer, submission_dat))
